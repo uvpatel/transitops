@@ -11,8 +11,7 @@ export default async function ServerComponent() {
     }
     return (
         <div>
-            <h1>Welcome {session.user.name}</h1>
-            <button onClick={() => authClient.signOut()}>Sign Out</button>
+            
         </div>
     )
 }
