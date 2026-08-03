@@ -33,37 +33,37 @@ export default function DashboardOverviewPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-  <Button  size="sm" className="gap-2">
-    <Link href="/dashboard/trips" className="flex items-center gap-2">
-      <NavigationIcon className="h-4 w-4" />
-      <span>Create Trip</span>
-    </Link>
-  </Button>
+          <Button size="sm" className="gap-2">
+            <Link href="/dashboard/trips" className="flex items-center gap-2">
+              <NavigationIcon className="h-4 w-4" />
+              <span>Create Trip</span>
+            </Link>
+          </Button>
 
-  <Button size="sm" variant="outline" className="gap-2">
-    <Link href="/dashboard/fleet" className="flex items-center gap-2">
-      <TruckIcon className="h-4 w-4 text-emerald-500" />
-      <span>Add Vehicle</span>
-    </Link>
-  </Button>
+          <Button size="sm" variant="outline" className="gap-2">
+            <Link href="/dashboard/fleet" className="flex items-center gap-2">
+              <TruckIcon className="h-4 w-4 text-emerald-500" />
+              <span>Add Vehicle</span>
+            </Link>
+          </Button>
 
-  <Button size="sm" variant="outline" className="gap-2">
-    <Link href="/dashboard/drivers" className="flex items-center gap-2">
-      <UserPlusIcon className="h-4 w-4 text-purple-500" />
-      <span>Register Driver</span>
-    </Link>
-  </Button>
+          <Button size="sm" variant="outline" className="gap-2">
+            <Link href="/dashboard/drivers" className="flex items-center gap-2">
+              <UserPlusIcon className="h-4 w-4 text-purple-500" />
+              <span>Register Driver</span>
+            </Link>
+          </Button>
 
- <Button size="sm" variant="outline">
-  <Link
-    href="/dashboard/expenses"
-    className="flex items-center gap-2"
-  >
-    <ReceiptIcon className="h-4 w-4 text-amber-500" />
-    <span>File Expense</span>
-  </Link>
-</Button>
-</div>
+          <Button size="sm" variant="outline">
+            <Link
+              href="/dashboard/expenses"
+              className="flex items-center gap-2"
+            >
+              <ReceiptIcon className="h-4 w-4 text-amber-500" />
+              <span>File Expense</span>
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -95,7 +95,7 @@ export default function DashboardOverviewPage() {
                   <p className="font-semibold">Driver License Expiring</p>
                   <p className="text-[11px] opacity-90">John Doe (DL-98214) expires in 3 days.</p>
                 </div>
-                <Button  size="xs" variant="ghost" className="h-7 px-2">
+                <Button size="xs" variant="ghost" className="h-7 px-2">
                   <Link href="/dashboard/compliance">
                     View <ArrowUpRightIcon className="size-3 ml-1" />
                   </Link>

@@ -130,7 +130,7 @@ export function SectionCards() {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 w-full gap-8 px-4 lg:px-6 sm:grid-cols-2 xl:grid-cols-4">
       <Card className="@container/card shadow-xs">
         <CardHeader>
           <CardDescription>Total Expenses</CardDescription>
