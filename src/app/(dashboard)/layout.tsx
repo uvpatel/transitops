@@ -1,61 +1,30 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { TooltipProvider } from "@/components/ui/tooltip"
-import { AppSidebar } from "@/components/app-sidebar"
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
-import { DataTable } from "@/components/data-table"
-import { SectionCards } from "@/components/section-cards"
-import { SiteHeader } from "@/components/site-header"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import React from "react";
+import { AppSidebar } from "@/components/app-sidebar";
+import { SiteHeader } from "@/components/site-header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
-const geistSans = Geist({
-    subsets: ["latin"],
-    variable: "--font-sans",
-    display: "swap",
-});
-
-const geistMono = Geist_Mono({
-    subsets: ["latin"],
-    variable: "--font-mono",
-    display: "swap",
-});
-
-export const metadata: Metadata = {
-    title: "TransitOps",
-    description: "Vehicle Telematics Dashboard",
-};
-
-
-export default function RootLayout({
-    children,
+export default function DashboardLayout({
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
-        <html
-            lang="en"
-            className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-        >
-            <body className="min-h-full flex flex-col">
-                
-                    <SidebarProvider
-                        style={
-                            {
-                                "--sidebar-width": "calc(var(--spacing) * 72)",
-                                "--header-height": "calc(var(--spacing) * 12)",
-                            } as React.CSSProperties
-                        }
-                    >
-                        <AppSidebar variant="inset" />
-                        <SidebarInset>
-                            <SiteHeader />
-                            <TooltipProvider>
-                            {children}
-                        </TooltipProvider>
-                    </SidebarInset>
-                </SidebarProvider>
-            </body>
-        </html>
-    );
+  return (
+    <SidebarProvider
+      style={{
+        "--sidebar-width": "calc(var(--spacing) * 64)",
+        "--header-height": "calc(var(--spacing) * 14)",
+      } as React.CSSProperties}
+    >
+      <AppSidebar variant="inset" />
+      <SidebarInset className="flex flex-col flex-1 min-h-screen">
+        <SiteHeader />
+        <TooltipProvider>
+          <div className="flex-1 p-4 md:p-6 lg:p-8 space-y-6">
+            {children}
+          </div>
+        </TooltipProvider>
+      </SidebarInset>
+    </SidebarProvider>
+  );
 }
