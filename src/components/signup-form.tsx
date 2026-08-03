@@ -43,7 +43,7 @@ export function SignupForm({
         toast.error(res.error.message || "Failed to create account.");
       } else {
         toast.success("Account created successfully! Redirecting to dashboard...");
-        router.push("/dashboard");
+        router.replace("/dashboard");
       }
     } catch (err: any) {
       toast.error(err?.message || "An error occurred during account creation.");

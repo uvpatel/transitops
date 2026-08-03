@@ -7,3 +7,5 @@ export * from "./fuel";
 export * from "./expenses";
 export * from "./alerts";
 export * from "./analytics";
+export * from "./auth-schema";
+export * from "./relations";

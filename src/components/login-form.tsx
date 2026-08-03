@@ -41,7 +41,7 @@ export function LoginForm({
         toast.error(res.error.message || "Failed to sign in. Please check credentials.");
       } else {
         toast.success("Welcome back! Signing you in...");
-        router.push("/dashboard");
+        router.replace("/dashboard");
       }
     } catch (err: any) {
       toast.error(err?.message || "An unexpected error occurred during login.");
@@ -95,9 +95,9 @@ export function LoginForm({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password" className="text-xs font-semibold">Password</Label>
-                  <a href="#" className="text-xs text-primary hover:underline font-medium">
+                  <Link href="/forgot-password" className="text-xs text-primary hover:underline font-medium">
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
                 <Input
                   id="password"
@@ -148,7 +148,7 @@ export function LoginForm({
 
             <p className="text-center text-xs text-muted-foreground mt-2">
               Don&apos;t have an account?{" "}
-              <Link href="/sign-in" className="text-primary font-semibold hover:underline">
+              <Link href="/sign-up" className="text-primary font-semibold hover:underline">
                 Sign up
               </Link>
             </p>

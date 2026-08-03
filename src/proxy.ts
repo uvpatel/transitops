@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
 export async function proxy(request: NextRequest) {
-  const sessionCookie = getSessionCookie(request);
+  const sessionCookie = getSessionCookie(request) || request.cookies.get("better-auth.session_token")?.value;
   const { pathname } = request.nextUrl;
 
-  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/sign-in");
+  const isAuthPage =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/sign-in") ||
+    pathname.startsWith("/sign-up");
   const isDashboardPage =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/analytics") ||
@@ -57,5 +60,10 @@ export const config = {
     "/profile/:path*",
     "/login",
     "/sign-in",
+    "/sign-up",
+    "/forgot-password",
+    "/reset-password",
+    "/verify-email",
+    "/auth-error",
   ],
 };

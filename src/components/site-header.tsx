@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -81,27 +82,31 @@ export function SiteHeader() {
 
         {/* Organization Switcher */}
         <DropdownMenu>
-          <DropdownMenuTrigger >
-            <Button variant="ghost" size="sm" className="h-9 gap-1.5 px-2.5 text-xs font-medium border border-border/50">
-              <Building2Icon className="size-3.5 text-primary" />
-              <span className="hidden sm:inline-block max-w-[100px] truncate">TransitOps Global</span>
-              <ChevronDownIcon className="size-3 text-muted-foreground" />
-            </Button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <Button variant="ghost" size="sm" className="h-9 gap-1.5 px-2.5 text-xs font-medium border border-border/50">
+                <Building2Icon className="size-3.5 text-primary" />
+                <span className="hidden sm:inline-block max-w-[100px] truncate">TransitOps Global</span>
+                <ChevronDownIcon className="size-3 text-muted-foreground" />
+              </Button>
+            }
+          />
           <DropdownMenuContent align="end" className="w-52">
-            <DropdownMenuLabel className="text-xs text-muted-foreground">Select Organization</DropdownMenuLabel>
-            <DropdownMenuItem className="gap-2 font-medium">
-              <Building2Icon className="size-4 text-primary" />
-              <span>TransitOps Global</span>
-              <BadgeCheckIcon className="ml-auto size-4 text-emerald-500" />
-            </DropdownMenuItem>
-            <DropdownMenuItem className="gap-2 text-muted-foreground">
-              <Building2Icon className="size-4" />
-              <span>Apex Logistics LLC</span>
-            </DropdownMenuItem>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="text-xs text-muted-foreground">Select Organization</DropdownMenuLabel>
+              <DropdownMenuItem className="gap-2 font-medium">
+                <Building2Icon className="size-4 text-primary" />
+                <span>TransitOps Global</span>
+                <BadgeCheckIcon className="ml-auto size-4 text-emerald-500" />
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2 text-muted-foreground">
+                <Building2Icon className="size-4" />
+                <span>Apex Logistics LLC</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem >
-              <Link href="/dashboard/organizations" className="cursor-pointer text-xs text-primary font-medium">
+            <DropdownMenuItem className="cursor-pointer">
+              <Link href="/dashboard/organizations" className="text-xs text-primary font-medium w-full">
                 Manage Organizations →
               </Link>
             </DropdownMenuItem>
@@ -117,45 +122,48 @@ export function SiteHeader() {
 
         {/* Quick Action Button */}
         <DropdownMenu>
-          <DropdownMenuTrigger >
-            <Button size="sm" className="h-9 gap-1.5 px-3 text-xs font-semibold shadow-sm">
-              <PlusIcon className="size-4" />
-              <span className="hidden sm:inline-block">Quick Action</span>
-            </Button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <Button size="sm" className="h-9 gap-1.5 px-3 text-xs font-semibold shadow-sm">
+                <PlusIcon className="size-4" />
+                <span className="hidden sm:inline-block">Quick Action</span>
+              </Button>
+            }
+          />
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel className="text-xs">Create New Record</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem  className="cursor-pointer">
-              <Link href="/dashboard/trips" className="flex items-center gap-2">
-                <NavigationIcon className="size-4 text-blue-500" />
-                <span>Create Trip</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
-              <Link href="/dashboard/fleet" className="flex items-center gap-2">
-                <TruckIcon className="size-4 text-emerald-500" />
-                <span>Add Vehicle</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
-              <Link href="/dashboard/drivers" className="flex items-center gap-2">
-                <UserPlusIcon className="size-4 text-purple-500" />
-                <span>Register Driver</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
-              <Link href="/dashboard/expenses" className="flex items-center gap-2">
-                <ReceiptIcon className="size-4 text-amber-500" />
-                <span>File Expense</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
-              <Link href="/dashboard/maintenance" className="flex items-center gap-2">
-                <WrenchIcon className="size-4 text-rose-500" />
-                <span>Schedule Service</span>
-              </Link>
-            </DropdownMenuItem>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="text-xs">Create New Record</DropdownMenuLabel>
+              <DropdownMenuItem className="cursor-pointer">
+                <Link href="/dashboard/trips" className="flex items-center gap-2 w-full">
+                  <NavigationIcon className="size-2 text-blue-500" />
+                  <span>Create Trip</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                <Link href="/dashboard/fleet" className="flex items-center gap-2 w-full">
+                  <TruckIcon className="size-4 text-emerald-500" />
+                  <span>Add Vehicle</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                <Link href="/dashboard/drivers" className="flex items-center gap-2 w-full">
+                  <UserPlusIcon className="size-4 text-purple-500" />
+                  <span>Register Driver</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                <Link href="/dashboard/expenses" className="flex items-center gap-2 w-full">
+                  <ReceiptIcon className="size-4 text-amber-500" />
+                  <span>File Expense</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                <Link href="/dashboard/maintenance" className="flex items-center gap-2 w-full">
+                  <WrenchIcon className="size-4 text-rose-500" />
+                  <span>Schedule Service</span>
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
