@@ -3,9 +3,10 @@ import Link from "next/link";
 import { SectionCards } from "@/components/section-cards";
 import { ChartAreaInteractive } from "@/components/chart-area-interactive";
 import { DataTable } from "@/components/data-table";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import {
   TruckIcon,
   NavigationIcon,
@@ -17,9 +18,7 @@ import {
   ClockIcon,
   WrenchIcon,
   FuelIcon,
-
-} from "lucide-react"
-
+} from "lucide-react";
 
 export default function DashboardOverviewPage() {
   return (
@@ -32,37 +31,38 @@ export default function DashboardOverviewPage() {
             Real-time telemetry, trip status, driver safety, and maintenance compliance.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button size="sm" className="gap-2">
-            <Link href="/dashboard/trips" className="flex items-center gap-2">
-              <NavigationIcon className="h-4 w-4" />
-              <span>Create Trip</span>
-            </Link>
-          </Button>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Link
+            href="/dashboard/trips"
+            className={cn(buttonVariants({ variant: "default", size: "sm" }), "gap-2 font-semibold text-xs h-9")}
+          >
+            <NavigationIcon className="size-4" />
+            <span>Create Trip</span>
+          </Link>
 
-          <Button size="sm" variant="outline" className="gap-2">
-            <Link href="/dashboard/fleet" className="flex items-center gap-2">
-              <TruckIcon className="h-4 w-4 text-emerald-500" />
-              <span>Add Vehicle</span>
-            </Link>
-          </Button>
+          <Link
+            href="/dashboard/fleet"
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2 font-semibold text-xs h-9")}
+          >
+            <TruckIcon className="size-4 text-emerald-500" />
+            <span>Add Vehicle</span>
+          </Link>
 
-          <Button size="sm" variant="outline" className="gap-2">
-            <Link href="/dashboard/drivers" className="flex items-center gap-2">
-              <UserPlusIcon className="h-4 w-4 text-purple-500" />
-              <span>Register Driver</span>
-            </Link>
-          </Button>
+          <Link
+            href="/dashboard/drivers"
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2 font-semibold text-xs h-9")}
+          >
+            <UserPlusIcon className="size-4 text-purple-500" />
+            <span>Register Driver</span>
+          </Link>
 
-          <Button size="sm" variant="outline">
-            <Link
-              href="/dashboard/expenses"
-              className="flex items-center gap-2"
-            >
-              <ReceiptIcon className="h-4 w-4 text-amber-500" />
-              <span>File Expense</span>
-            </Link>
-          </Button>
+          <Link
+            href="/dashboard/expenses"
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2 font-semibold text-xs h-9")}
+          >
+            <ReceiptIcon className="size-4 text-amber-500" />
+            <span>File Expense</span>
+          </Link>
         </div>
       </div>
 
@@ -95,11 +95,12 @@ export default function DashboardOverviewPage() {
                   <p className="font-semibold">Driver License Expiring</p>
                   <p className="text-[11px] opacity-90">John Doe (DL-98214) expires in 3 days.</p>
                 </div>
-                <Button size="xs" variant="ghost" className="h-7 px-2">
-                  <Link href="/dashboard/compliance">
-                    View <ArrowUpRightIcon className="size-3 ml-1" />
-                  </Link>
-                </Button>
+                <Link
+                  href="/dashboard/compliance"
+                  className={cn(buttonVariants({ variant: "ghost", size: "xs" }), "h-7 px-2 flex items-center gap-1")}
+                >
+                  View <ArrowUpRightIcon className="size-3" />
+                </Link>
               </div>
 
               <div className="flex items-start gap-3 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400">
@@ -108,11 +109,12 @@ export default function DashboardOverviewPage() {
                   <p className="font-semibold">Oil Change Overdue</p>
                   <p className="text-[11px] opacity-90">Vehicle #TRK-104 exceeded limit by 420 km.</p>
                 </div>
-                <Button size="xs" variant="ghost" className="h-7 px-2">
-                  <Link href="/dashboard/maintenance">
-                    Schedule <ArrowUpRightIcon className="size-3 ml-1" />
-                  </Link>
-                </Button>
+                <Link
+                  href="/dashboard/maintenance"
+                  className={cn(buttonVariants({ variant: "ghost", size: "xs" }), "h-7 px-2 flex items-center gap-1")}
+                >
+                  Schedule <ArrowUpRightIcon className="size-3" />
+                </Link>
               </div>
 
               <div className="flex items-start gap-3 p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-400">
@@ -121,11 +123,12 @@ export default function DashboardOverviewPage() {
                   <p className="font-semibold">Fuel Efficiency Anomaly</p>
                   <p className="text-[11px] opacity-90">Van #VAN-089 reported -18% efficiency drop.</p>
                 </div>
-                <Button size="xs" variant="ghost" className="h-7 px-2">
-                  <Link href="/dashboard/fuel">
-                    Audit <ArrowUpRightIcon className="size-3 ml-1" />
-                  </Link>
-                </Button>
+                <Link
+                  href="/dashboard/fuel"
+                  className={cn(buttonVariants({ variant: "ghost", size: "xs" }), "h-7 px-2 flex items-center gap-1")}
+                >
+                  Audit <ArrowUpRightIcon className="size-3" />
+                </Link>
               </div>
             </CardContent>
           </Card>
@@ -165,11 +168,12 @@ export default function DashboardOverviewPage() {
             <h3 className="text-lg font-bold tracking-tight">Active Trips & Logistics</h3>
             <p className="text-xs text-muted-foreground">Live telemetry feeds and delivery stop progressions</p>
           </div>
-          <Button size="sm" variant="outline" className="gap-1 text-xs">
-            <Link href="/dashboard/trips">
-              View All Trips <ArrowUpRightIcon className="size-3.5" />
-            </Link>
-          </Button>
+          <Link
+            href="/dashboard/trips"
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1 text-xs")}
+          >
+            View All Trips <ArrowUpRightIcon className="size-3.5" />
+          </Link>
         </div>
         <DataTable />
       </div>

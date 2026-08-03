@@ -110,8 +110,8 @@ export function SectionCards() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-12 text-sm text-muted-foreground gap-4">
-        <Loader2Icon className="size-4 animate-spin" /> Loading dashboard metrics…
+      <div className="flex items-center justify-center p-8 text-xs text-muted-foreground gap-3">
+        <Loader2Icon className="size-4 animate-spin text-primary" /> Loading telemetry metrics…
       </div>
     );
   }
@@ -130,92 +130,104 @@ export function SectionCards() {
   };
 
   return (
-    <div className="grid grid-cols-1 w-full gap-8 px-4 lg:px-6 sm:grid-cols-2 xl:grid-cols-4">
-      <Card className="@container/card shadow-xs">
-        <CardHeader>
-          <CardDescription>Total Expenses</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums">
+    <div className="grid grid-cols-1 w-full gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Total Expenses Card */}
+      <Card className="shadow-xs flex flex-col justify-between h-full">
+        <CardHeader className="pb-2">
+          <CardDescription className="text-xs font-semibold text-muted-foreground">Total Expenses</CardDescription>
+          <CardTitle className="text-2xl font-bold tracking-tight tabular-nums mt-0.5">
             {formatCurrency(currentStats.totalExpenses)}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <TrendingUpIcon />
+            <Badge variant="outline" className="text-[10px] gap-1 font-medium bg-muted/30">
+              <TrendingUpIcon className="size-3 text-emerald-500" />
               {currentStats.activeTrips} active trips
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Operational spend tracked from live DB
-            <TrendingUpIcon className="size-4 text-emerald-500" />
+        <CardFooter className="flex-col items-start gap-1 text-xs border-t bg-muted/30 p-3 mt-auto">
+          <div className="flex items-center gap-1.5 font-medium text-foreground w-full truncate">
+            <span className="truncate">Operational spend tracked from live DB</span>
+            <TrendingUpIcon className="size-3.5 text-emerald-500 shrink-0" />
           </div>
-          <div className="text-muted-foreground">Fuel spend: {formatCurrency(currentStats.totalFuelCost)}</div>
+          <div className="text-muted-foreground text-[11px]">
+            Fuel spend: {formatCurrency(currentStats.totalFuelCost)}
+          </div>
         </CardFooter>
       </Card>
 
-      <Card className="@container/card shadow-xs">
-        <CardHeader>
-          <CardDescription>Vehicles in Service</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums">
+      {/* Vehicles in Service Card */}
+      <Card className="shadow-xs flex flex-col justify-between h-full">
+        <CardHeader className="pb-2">
+          <CardDescription className="text-xs font-semibold text-muted-foreground">Vehicles in Service</CardDescription>
+          <CardTitle className="text-2xl font-bold tracking-tight tabular-nums mt-0.5">
             {currentStats.totalVehicles}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <TrendingDownIcon />
+            <Badge variant="outline" className="text-[10px] gap-1 font-medium bg-muted/30">
+              <TrendingDownIcon className="size-3 text-blue-500" />
               {currentStats.availableVehicles} available
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            {currentStats.vehiclesInTransit} vehicles in transit
-            <TrendingDownIcon className="size-4 text-blue-500" />
+        <CardFooter className="flex-col items-start gap-1 text-xs border-t bg-muted/30 p-3 mt-auto">
+          <div className="flex items-center gap-1.5 font-medium text-foreground w-full truncate">
+            <span className="truncate">{currentStats.vehiclesInTransit} vehicles in transit</span>
+            <TrendingDownIcon className="size-3.5 text-blue-500 shrink-0" />
           </div>
-          <div className="text-muted-foreground">Maintenance open: {currentStats.maintenanceOpen}</div>
+          <div className="text-muted-foreground text-[11px]">
+            Maintenance open: {currentStats.maintenanceOpen}
+          </div>
         </CardFooter>
       </Card>
 
-      <Card className="@container/card shadow-xs">
-        <CardHeader>
-          <CardDescription>Drivers Registered</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums">
+      {/* Drivers Registered Card */}
+      <Card className="shadow-xs flex flex-col justify-between h-full">
+        <CardHeader className="pb-2">
+          <CardDescription className="text-xs font-semibold text-muted-foreground">Drivers Registered</CardDescription>
+          <CardTitle className="text-2xl font-bold tracking-tight tabular-nums mt-0.5">
             {currentStats.totalDrivers}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <TrendingUpIcon />
+            <Badge variant="outline" className="text-[10px] gap-1 font-medium bg-muted/30">
+              <TrendingUpIcon className="size-3 text-emerald-500" />
               {currentStats.activeUsers} active users
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Fleet coverage is operational
-            <TrendingUpIcon className="size-4 text-emerald-500" />
+        <CardFooter className="flex-col items-start gap-1 text-xs border-t bg-muted/30 p-3 mt-auto">
+          <div className="flex items-center gap-1.5 font-medium text-foreground w-full truncate">
+            <span className="truncate">Fleet coverage is operational</span>
+            <TrendingUpIcon className="size-3.5 text-emerald-500 shrink-0" />
           </div>
-          <div className="text-muted-foreground">Ready for dispatch & assignments</div>
+          <div className="text-muted-foreground text-[11px]">
+            Ready for dispatch & assignments
+          </div>
         </CardFooter>
       </Card>
 
-      <Card className="@container/card shadow-xs">
-        <CardHeader>
-          <CardDescription>Trips Completed</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums">
+      {/* Trips Completed Card */}
+      <Card className="shadow-xs flex flex-col justify-between h-full">
+        <CardHeader className="pb-2">
+          <CardDescription className="text-xs font-semibold text-muted-foreground">Trips Completed</CardDescription>
+          <CardTitle className="text-2xl font-bold tracking-tight tabular-nums mt-0.5">
             {currentStats.completedTrips}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <TrendingUpIcon />
+            <Badge variant="outline" className="text-[10px] gap-1 font-medium bg-muted/30">
+              <TrendingUpIcon className="size-3 text-emerald-500" />
               {currentStats.activeTrips} active
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Live telemetry data from API
-            <TrendingUpIcon className="size-4 text-emerald-500" />
+        <CardFooter className="flex-col items-start gap-1 text-xs border-t bg-muted/30 p-3 mt-auto">
+          <div className="flex items-center gap-1.5 font-medium text-foreground w-full truncate">
+            <span className="truncate">Live telemetry data from API</span>
+            <TrendingUpIcon className="size-3.5 text-emerald-500 shrink-0" />
           </div>
-          <div className="text-muted-foreground">Refreshed dynamically from backend</div>
+          <div className="text-muted-foreground text-[11px]">
+            Refreshed dynamically from backend
+          </div>
         </CardFooter>
       </Card>
     </div>
