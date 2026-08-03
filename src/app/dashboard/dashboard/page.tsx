@@ -32,32 +32,38 @@ export default function DashboardOverviewPage() {
             Real-time telemetry, trip status, driver safety, and maintenance compliance.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button  size="sm" className="gap-1.5 font-semibold">
-            <Link href="/dashboard/trips">
-              <NavigationIcon className="size-4" />
-              <span>Create Trip</span>
-            </Link>
-          </Button>
-          <Button  size="sm" variant="outline" className="gap-1.5">
-            <Link href="/dashboard/fleet">
-              <TruckIcon className="size-4 text-emerald-500" />
-              <span>Add Vehicle</span>
-            </Link>
-          </Button>
-          <Button  size="sm" variant="outline" className="gap-1.5">
-            <Link href="/dashboard/drivers">
-              <UserPlusIcon className="size-4 text-purple-500" />
-              <span>Register Driver</span>
-            </Link>
-          </Button>
-          <Button  size="sm" variant="outline" className="gap-1.5">
-            <Link href="/dashboard/expenses">
-              <ReceiptIcon className="size-4 text-amber-500" />
-              <span>File Expense</span>
-            </Link>
-          </Button>
-        </div>
+        <div className="flex flex-wrap items-center gap-3">
+  <Button  size="sm" className="gap-2">
+    <Link href="/dashboard/trips" className="flex items-center gap-2">
+      <NavigationIcon className="h-4 w-4" />
+      <span>Create Trip</span>
+    </Link>
+  </Button>
+
+  <Button size="sm" variant="outline" className="gap-2">
+    <Link href="/dashboard/fleet" className="flex items-center gap-2">
+      <TruckIcon className="h-4 w-4 text-emerald-500" />
+      <span>Add Vehicle</span>
+    </Link>
+  </Button>
+
+  <Button size="sm" variant="outline" className="gap-2">
+    <Link href="/dashboard/drivers" className="flex items-center gap-2">
+      <UserPlusIcon className="h-4 w-4 text-purple-500" />
+      <span>Register Driver</span>
+    </Link>
+  </Button>
+
+ <Button size="sm" variant="outline">
+  <Link
+    href="/dashboard/expenses"
+    className="flex items-center gap-2"
+  >
+    <ReceiptIcon className="h-4 w-4 text-amber-500" />
+    <span>File Expense</span>
+  </Link>
+</Button>
+</div>
       </div>
 
       {/* KPI Cards */}
