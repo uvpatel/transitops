@@ -17,9 +17,9 @@ import {
   ClockIcon,
   WrenchIcon,
   FuelIcon,
-} from "lucide-react";
 
-import data from "./data.json";
+} from "lucide-react"
+
 
 export default function DashboardOverviewPage() {
   return (
@@ -165,7 +165,7 @@ export default function DashboardOverviewPage() {
             </Link>
           </Button>
         </div>
-        <DataTable data={data} />
+        <DataTable />
       </div>
     </div>
   );

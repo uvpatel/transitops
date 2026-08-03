@@ -110,7 +110,7 @@ export function SectionCards() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8 text-sm text-muted-foreground gap-2">
+      <div className="flex items-center justify-center p-12 text-sm text-muted-foreground gap-4">
         <Loader2Icon className="size-4 animate-spin" /> Loading dashboard metrics…
       </div>
     );
