@@ -30,6 +30,7 @@ import {
   WrenchIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { ModeToggle } from "./toggler";
 
 const pathMap: Record<string, string> = {
   "/dashboard": "Overview",
@@ -119,6 +120,7 @@ export function SiteHeader() {
           <span className="absolute right-2 top-2 size-2 rounded-full bg-rose-500 ring-2 ring-background" />
           <span className="sr-only">Notifications</span>
         </Button>
+        <ModeToggle />
 
         {/* Quick Action Button */}
         <DropdownMenu>

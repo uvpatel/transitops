@@ -3,7 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { ShootingStars } from "@/components/ui/shooting-stars";
 import { StarsBackground } from "@/components/ui/stars-background";
-import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 export default function ShootingStarsAndStarsBackgroundDemo() {
   return (
@@ -25,15 +25,12 @@ export default function ShootingStarsAndStarsBackgroundDemo() {
         </p>
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Link href="/login" className={buttonVariants({ size: "lg", className: "min-w-36" })}>
-            Log in
-          </Link>
-          <Link
-            href="/sign-up"
-            className={buttonVariants({ variant: "outline", size: "lg", className: "min-w-36 border-white/20 bg-white/10 text-white hover:bg-white/20" })}
-          >
-            Create account
-          </Link>
+          <Button size="lg" className="min-w-36">
+            <Link href="/login">Log in</Link>
+          </Button>
+          <Button variant="outline" size="lg" className="min-w-36 border-white/20 bg-white/10 text-white hover:bg-white/20">
+            <Link href="/sign-up">Create account</Link>
+          </Button>
         </div>
       </div>
     </div>

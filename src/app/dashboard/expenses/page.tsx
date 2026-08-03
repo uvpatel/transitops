@@ -103,6 +103,11 @@ export default function ExpensesPage() {
       return;
     }
 
+    if (Number(formData.amount) < 0) {
+      toast.error("Expense amount cannot be negative");
+      return;
+    }
+
     try {
       setSubmitting(true);
       const res = await fetch("/api/expenses", {
@@ -179,6 +184,7 @@ export default function ExpensesPage() {
                   <Input
                     required
                     type="number"
+                    min="0"
                     placeholder="120.00"
                     value={formData.amount}
                     onChange={(e) => setFormData({ ...formData, amount: e.target.value })}

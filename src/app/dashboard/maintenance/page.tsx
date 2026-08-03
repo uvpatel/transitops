@@ -96,6 +96,11 @@ export default function MaintenancePage() {
       return;
     }
 
+    if (Number(formData.laborCost) < 0 || Number(formData.partsCost) < 0) {
+      toast.error("Labor cost and parts cost cannot be negative");
+      return;
+    }
+
     try {
       setSubmitting(true);
       const res = await fetch("/api/maintenance", {
@@ -248,6 +253,7 @@ export default function MaintenancePage() {
                   <label className="text-xs font-semibold text-muted-foreground">Est. Labor Cost ($)</label>
                   <Input
                     type="number"
+                    min="0"
                     placeholder="150"
                     value={formData.laborCost}
                     onChange={(e) => setFormData({ ...formData, laborCost: e.target.value })}
@@ -258,6 +264,7 @@ export default function MaintenancePage() {
                   <label className="text-xs font-semibold text-muted-foreground">Est. Parts Cost ($)</label>
                   <Input
                     type="number"
+                    min="0"
                     placeholder="300"
                     value={formData.partsCost}
                     onChange={(e) => setFormData({ ...formData, partsCost: e.target.value })}

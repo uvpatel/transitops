@@ -106,6 +106,11 @@ export default function FuelPage() {
       return;
     }
 
+    if (Number(formData.quantityLiters) < 0 || Number(formData.pricePerLiter) < 0 || (formData.odometerKm && Number(formData.odometerKm) < 0)) {
+      toast.error("Fuel quantity, price, and odometer reading cannot be negative");
+      return;
+    }
+
     try {
       setSubmitting(true);
       const res = await fetch("/api/fuel-logs", {
@@ -202,6 +207,7 @@ export default function FuelPage() {
                   <Input
                     required
                     type="number"
+                    min="0"
                     step="0.01"
                     placeholder="85.5"
                     value={formData.quantityLiters}
@@ -214,6 +220,7 @@ export default function FuelPage() {
                   <Input
                     required
                     type="number"
+                    min="0"
                     step="0.01"
                     placeholder="1.45"
                     value={formData.pricePerLiter}
@@ -228,6 +235,7 @@ export default function FuelPage() {
                   <label className="text-xs font-semibold text-muted-foreground">Odometer Reading (km)</label>
                   <Input
                     type="number"
+                    min="0"
                     placeholder="48200"
                     value={formData.odometerKm}
                     onChange={(e) => setFormData({ ...formData, odometerKm: e.target.value })}

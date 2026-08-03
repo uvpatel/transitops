@@ -20,7 +20,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   NavigationIcon,
@@ -32,6 +31,12 @@ import {
   Trash2Icon,
   Loader2Icon,
   XCircleIcon,
+  PencilIcon,
+  EyeIcon,
+  SparklesIcon,
+  MapPinIcon,
+  TruckIcon,
+  UserIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -68,6 +73,8 @@ export default function TripsPage() {
   const [loading, setLoading] = React.useState(true);
   const [search, setSearch] = React.useState("");
   const [isAddOpen, setIsAddOpen] = React.useState(false);
+  const [editingTripId, setEditingTripId] = React.useState<string | null>(null);
+  const [viewingTrip, setViewingTrip] = React.useState<Trip | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
 
   const [formData, setFormData] = React.useState({
@@ -105,40 +112,74 @@ export default function TripsPage() {
     fetchData();
   }, [fetchData]);
 
-  const handleCreateTrip = async (e: React.FormEvent) => {
+  const handleOpenAdd = () => {
+    setEditingTripId(null);
+    setFormData({
+      title: "",
+      tripType: "DELIVERY",
+      priority: "NORMAL",
+      status: "ASSIGNED",
+      originName: "",
+      destinationName: "",
+      estimatedDistanceKm: "",
+      vehicleId: "",
+      driverId: "",
+    });
+    setIsAddOpen(true);
+  };
+
+  const handleOpenEdit = (trip: Trip) => {
+    setEditingTripId(trip.id);
+    setFormData({
+      title: trip.title || "",
+      tripType: trip.tripType || "DELIVERY",
+      priority: trip.priority || "NORMAL",
+      status: trip.status || "ASSIGNED",
+      originName: trip.originName || "",
+      destinationName: trip.destinationName || "",
+      estimatedDistanceKm: trip.estimatedDistanceKm || "",
+      vehicleId: trip.vehicle?.id || "",
+      driverId: trip.driver?.id || "",
+    });
+    setIsAddOpen(true);
+  };
+
+  const handleSaveTrip = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.originName || !formData.destinationName) {
       toast.error("Title, origin, and destination are required");
       return;
     }
 
+    // Distance cannot be negative check
+    if (formData.estimatedDistanceKm && Number(formData.estimatedDistanceKm) < 0) {
+      toast.error("Distance cannot be negative");
+      return;
+    }
+
     try {
       setSubmitting(true);
-      const res = await fetch("/api/trips", {
-        method: "POST",
+      const isEditing = Boolean(editingTripId);
+      const url = "/api/trips";
+      const method = isEditing ? "PUT" : "POST";
+      const payload = isEditing
+        ? { id: editingTripId, ...formData }
+        : formData;
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to create trip");
+      if (!res.ok) throw new Error(data.error || `Failed to ${isEditing ? "update" : "create"} trip`);
 
-      toast.success(`Trip dispatched successfully! (${data.trip?.tripNumber || ""})`);
+      toast.success(`Trip ${isEditing ? "updated" : "dispatched"} successfully!`);
       setIsAddOpen(false);
-      setFormData({
-        title: "",
-        tripType: "DELIVERY",
-        priority: "NORMAL",
-        status: "ASSIGNED",
-        originName: "",
-        destinationName: "",
-        estimatedDistanceKm: "",
-        vehicleId: "",
-        driverId: "",
-      });
       fetchData();
     } catch (err: any) {
-      toast.error(err.message || "Failed to dispatch trip");
+      toast.error(err.message || "Failed to save trip");
     } finally {
       setSubmitting(false);
     }
@@ -151,64 +192,76 @@ export default function TripsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, status }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to update trip status");
-
+      if (!res.ok) throw new Error("Failed to update status");
       toast.success(`Trip status updated to ${status}`);
       fetchData();
-    } catch (err: any) {
-      toast.error(err.message || "Failed to update trip");
+    } catch {
+      toast.error("Status update failed");
     }
   };
 
-  const handleDeleteTrip = async (id: string, tripNum: string) => {
-    if (!confirm(`Are you sure you want to delete trip ${tripNum}?`)) return;
+  const handleDeleteTrip = async (id: string, title: string) => {
+    if (!confirm(`Are you sure you want to cancel and remove trip "${title}"?`)) return;
     try {
       const res = await fetch(`/api/trips?id=${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete");
-      toast.success(`Trip ${tripNum} deleted.`);
+      if (!res.ok) throw new Error("Failed to delete trip");
+      toast.success(`Trip "${title}" removed.`);
       fetchData();
     } catch {
-      toast.error("Error deleting trip.");
+      toast.error("Error removing trip.");
     }
   };
 
   const filteredTrips = trips.filter(
     (t) =>
-      t.tripNumber.toLowerCase().includes(search.toLowerCase()) ||
       t.title.toLowerCase().includes(search.toLowerCase()) ||
+      t.tripNumber.toLowerCase().includes(search.toLowerCase()) ||
       (t.originName ?? "").toLowerCase().includes(search.toLowerCase()) ||
       (t.destinationName ?? "").toLowerCase().includes(search.toLowerCase())
   );
 
-  const activeTripsCount = trips.filter((t) => t.status === "IN_PROGRESS" || t.status === "ASSIGNED").length;
+  const activeTripsCount = trips.filter((t) => t.status === "ASSIGNED" || t.status === "IN_PROGRESS").length;
   const completedTripsCount = trips.filter((t) => t.status === "COMPLETED").length;
+
+  const selectedVehicle = vehicles.find((v) => v.id === formData.vehicleId);
+  const selectedDriver = drivers.find((d) => d.id === formData.driverId);
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold tracking-tight md:text-2xl">Trip Dispatch & Telematics</h2>
-          <p className="text-sm text-muted-foreground">Manage active delivery routes, vehicle assignments, and trip status transitions.</p>
+          <h2 className="text-xl font-bold tracking-tight md:text-2xl">Trips & Dispatch Command</h2>
+          <p className="text-sm text-muted-foreground">Manage active freight movement, route assignments, and fulfillment.</p>
         </div>
 
-        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogTrigger render={<Button size="sm" className="gap-1.5 font-semibold" />}>
-            <PlusIcon className="size-4" />
-            <span>Create New Trip</span>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Dispatch New Trip</DialogTitle>
-              <DialogDescription>Assign an available vehicle and driver to a route.</DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleCreateTrip} className="space-y-3 py-2">
+        <Button size="sm" className="gap-1.5 font-semibold" onClick={handleOpenAdd}>
+          <PlusIcon className="size-4" />
+          <span>Dispatch New Trip</span>
+        </Button>
+      </div>
+
+      {/* Add / Edit Trip Dialog with LIVE PREVIEW */}
+      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {editingTripId ? <PencilIcon className="size-4 text-primary" /> : <PlusIcon className="size-4 text-primary" />}
+              <span>{editingTripId ? "Edit Trip Details" : "Dispatch New Trip"}</span>
+            </DialogTitle>
+            <DialogDescription>
+              {editingTripId ? "Modify route, status, or driver/vehicle assignment with live preview." : "Create and assign a new dispatch route with live preview."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 py-2">
+            {/* Form */}
+            <form onSubmit={handleSaveTrip} id="trip-form" className="lg:col-span-7 space-y-3">
               <div>
                 <label className="text-xs font-semibold text-muted-foreground">Trip Title / Description *</label>
                 <Input
                   required
-                  placeholder="e.g. Express Delivery - Distribution Hub B"
+                  placeholder="e.g. Regional Freight Delivery - Route #4"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="mt-1"
@@ -217,20 +270,20 @@ export default function TripsPage() {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground">Origin Address / Location *</label>
+                  <label className="text-xs font-semibold text-muted-foreground">Origin *</label>
                   <Input
                     required
-                    placeholder="Central Warehouse"
+                    placeholder="Chicago Depot #2"
                     value={formData.originName}
                     onChange={(e) => setFormData({ ...formData, originName: e.target.value })}
                     className="mt-1"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground">Destination Location *</label>
+                  <label className="text-xs font-semibold text-muted-foreground">Destination *</label>
                   <Input
                     required
-                    placeholder="Downtown Terminal"
+                    placeholder="Detroit Logistics Hub"
                     value={formData.destinationName}
                     onChange={(e) => setFormData({ ...formData, destinationName: e.target.value })}
                     className="mt-1"
@@ -304,26 +357,143 @@ export default function TripsPage() {
                 <label className="text-xs font-semibold text-muted-foreground">Est. Distance (km)</label>
                 <Input
                   type="number"
+                  min="0"
                   placeholder="145"
                   value={formData.estimatedDistanceKm}
-                  onChange={(e) => setFormData({ ...formData, estimatedDistanceKm: e.target.value })}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val && Number(val) < 0) {
+                      toast.error("Distance cannot be negative");
+                      return;
+                    }
+                    setFormData({ ...formData, estimatedDistanceKm: val });
+                  }}
                   className="mt-1"
                 />
+                <span className="text-[10px] text-muted-foreground">Distance must be non-negative (≥ 0 km).</span>
+              </div>
+            </form>
+
+            {/* LIVE PREVIEW COLUMN */}
+            <div className="lg:col-span-5 flex flex-col justify-start">
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-primary flex items-center gap-1 uppercase tracking-wider">
+                    <SparklesIcon className="size-3.5 animate-pulse text-amber-500" /> Trip Live Preview
+                  </span>
+                  <Badge variant="outline" className="text-[10px] bg-background">
+                    {formData.priority}
+                  </Badge>
+                </div>
+
+                <div className="rounded-md border bg-card p-3 shadow-xs space-y-2.5">
+                  <div className="border-b pb-2">
+                    <h4 className="font-bold text-sm text-foreground">
+                      {formData.title || "Trip Title"}
+                    </h4>
+                    <p className="text-[10px] font-mono text-muted-foreground">
+                      {editingTripId ? "EDITING TRIP" : "NEW DISPATCH"}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <MapPinIcon className="size-3 text-emerald-500 shrink-0" />
+                      <span className="truncate">{formData.originName || "Origin"} &rarr; {formData.destinationName || "Destination"}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <NavigationIcon className="size-3 text-primary shrink-0" />
+                      <span>Est. Distance: <strong className="text-foreground">{formData.estimatedDistanceKm ? `${formData.estimatedDistanceKm} km` : "0 km"}</strong></span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-[11px] bg-muted/40 p-2 rounded">
+                    <div>
+                      <span className="text-muted-foreground block text-[10px] flex items-center gap-1">
+                        <TruckIcon className="size-3" /> Vehicle
+                      </span>
+                      <span className="font-semibold text-foreground">{selectedVehicle ? selectedVehicle.registrationNumber : "Unassigned"}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block text-[10px] flex items-center gap-1">
+                        <UserIcon className="size-3" /> Driver
+                      </span>
+                      <span className="font-semibold text-foreground">{selectedDriver ? selectedDriver.fullName : "Unassigned"}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="mt-4">
+            <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" form="trip-form" disabled={submitting}>
+              {submitting ? <Loader2Icon className="size-4 animate-spin mr-1" /> : null}
+              {editingTripId ? "Save Changes" : "Dispatch Trip"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Trip Modal */}
+      <Dialog open={Boolean(viewingTrip)} onOpenChange={(open) => !open && setViewingTrip(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <NavigationIcon className="size-4 text-primary" />
+              <span>Trip Details Preview</span>
+            </DialogTitle>
+            <DialogDescription>{viewingTrip?.tripNumber} - {viewingTrip?.title}</DialogDescription>
+          </DialogHeader>
+
+          {viewingTrip && (
+            <div className="space-y-4 py-2 text-xs">
+              <div className="flex items-center justify-between border-b pb-3">
+                <div>
+                  <h3 className="font-bold text-base">{viewingTrip.title}</h3>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                    <MapPinIcon className="size-3 text-primary" /> {viewingTrip.originName} &rarr; {viewingTrip.destinationName}
+                  </p>
+                </div>
+                <Badge variant="outline">{viewingTrip.status}</Badge>
               </div>
 
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={submitting}>
-                  {submitting ? <Loader2Icon className="size-4 animate-spin mr-1" /> : null}
-                  Dispatch Trip
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <span className="text-muted-foreground block font-medium">Type:</span>
+                  <span className="font-semibold">{viewingTrip.tripType}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block font-medium">Priority:</span>
+                  <Badge variant="secondary" className="mt-0.5">{viewingTrip.priority}</Badge>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block font-medium">Est. Distance:</span>
+                  <span className="font-semibold">{viewingTrip.estimatedDistanceKm ? `${viewingTrip.estimatedDistanceKm} km` : "—"}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block font-medium">Vehicle:</span>
+                  <span className="font-semibold">{viewingTrip.vehicle?.registrationNumber || "Unassigned"}</span>
+                </div>
+              </div>
+
+              <div className="rounded-md border bg-muted/30 p-2.5">
+                <span className="font-semibold block text-muted-foreground">Assigned Driver:</span>
+                <p className="font-medium text-foreground">{viewingTrip.driver?.fullName || "No Driver Assigned"}</p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewingTrip(null)}>
+              Close Preview
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -398,19 +568,34 @@ export default function TripsPage() {
                     <div className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
                       <NavigationIcon className="size-3 text-muted-foreground" />
                       {trip.originName || "Origin"} &rarr; {trip.destinationName || "Destination"}
+                      {trip.estimatedDistanceKm ? ` (${trip.estimatedDistanceKm} km)` : ""}
                     </div>
                   </TableCell>
-                  <TableCell>{trip.vehicle ? trip.vehicle.registrationNumber : "Unassigned"}</TableCell>
-                  <TableCell>{trip.driver ? trip.driver.fullName : "Unassigned"}</TableCell>
                   <TableCell>
-                    {trip.status === "IN_PROGRESS" && (
-                      <Badge className="bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30">
-                        IN PROGRESS
+                    {trip.vehicle ? (
+                      <Badge variant="outline" className="text-[10px] font-mono">
+                        {trip.vehicle.registrationNumber}
                       </Badge>
+                    ) : (
+                      <span className="text-muted-foreground font-italic">Unassigned</span>
                     )}
+                  </TableCell>
+                  <TableCell>
+                    {trip.driver ? (
+                      <div className="font-medium text-foreground">{trip.driver.fullName}</div>
+                    ) : (
+                      <span className="text-muted-foreground font-italic">Unassigned</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
                     {trip.status === "COMPLETED" && (
                       <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
                         COMPLETED
+                      </Badge>
+                    )}
+                    {trip.status === "IN_PROGRESS" && (
+                      <Badge className="bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30">
+                        IN PROGRESS
                       </Badge>
                     )}
                     {trip.status === "ASSIGNED" && (
@@ -424,45 +609,60 @@ export default function TripsPage() {
                       </Badge>
                     )}
                   </TableCell>
-                  <TableCell className="text-right flex items-center justify-end gap-1">
-                    {trip.status === "ASSIGNED" && (
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      {trip.status === "ASSIGNED" && (
+                        <Button
+                          size="xs"
+                          variant="outline"
+                          className="h-6 text-[10px] gap-1 text-blue-600 border-blue-500/30"
+                          onClick={() => handleUpdateStatus(trip.id, "IN_PROGRESS")}
+                        >
+                          <PlayIcon className="size-3" /> Start
+                        </Button>
+                      )}
+
+                      {trip.status === "IN_PROGRESS" && (
+                        <Button
+                          size="xs"
+                          variant="outline"
+                          className="h-6 text-[10px] gap-1 text-emerald-600 border-emerald-500/30"
+                          onClick={() => handleUpdateStatus(trip.id, "COMPLETED")}
+                        >
+                          <CheckCircle2Icon className="size-3" /> Finish
+                        </Button>
+                      )}
+
                       <Button
-                        size="xs"
-                        variant="outline"
-                        className="h-7 text-[11px] gap-1 bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20"
-                        onClick={() => handleUpdateStatus(trip.id, "IN_PROGRESS")}
-                      >
-                        <PlayIcon className="size-3" /> Start
-                      </Button>
-                    )}
-                    {trip.status === "IN_PROGRESS" && (
-                      <Button
-                        size="xs"
-                        variant="outline"
-                        className="h-7 text-[11px] gap-1 bg-emerald-600 text-white hover:bg-emerald-700"
-                        onClick={() => handleUpdateStatus(trip.id, "COMPLETED")}
-                      >
-                        <CheckCircle2Icon className="size-3" /> Complete
-                      </Button>
-                    )}
-                    {trip.status !== "COMPLETED" && trip.status !== "CANCELLED" && (
-                      <Button
-                        size="xs"
+                        size="icon-xs"
                         variant="ghost"
-                        className="h-7 text-[11px] text-muted-foreground hover:text-destructive"
-                        onClick={() => handleUpdateStatus(trip.id, "CANCELLED")}
+                        title="Preview Trip"
+                        className="text-muted-foreground hover:text-foreground"
+                        onClick={() => setViewingTrip(trip)}
                       >
-                        <XCircleIcon className="size-3" />
+                        <EyeIcon className="size-3.5" />
                       </Button>
-                    )}
-                    <Button
-                      size="icon-xs"
-                      variant="ghost"
-                      className="text-destructive hover:bg-destructive/10 ml-1"
-                      onClick={() => handleDeleteTrip(trip.id, trip.tripNumber)}
-                    >
-                      <Trash2Icon className="size-3.5" />
-                    </Button>
+
+                      <Button
+                        size="icon-xs"
+                        variant="ghost"
+                        title="Edit Trip"
+                        className="text-primary hover:bg-primary/10"
+                        onClick={() => handleOpenEdit(trip)}
+                      >
+                        <PencilIcon className="size-3.5" />
+                      </Button>
+
+                      <Button
+                        size="icon-xs"
+                        variant="ghost"
+                        title="Delete Trip"
+                        className="text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDeleteTrip(trip.id, trip.title)}
+                      >
+                        <Trash2Icon className="size-3.5" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

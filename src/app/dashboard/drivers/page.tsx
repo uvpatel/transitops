@@ -30,6 +30,12 @@ import {
   Trash2Icon,
   Loader2Icon,
   CheckCircle2Icon,
+  PencilIcon,
+  EyeIcon,
+  SparklesIcon,
+  PhoneIcon,
+  MailIcon,
+  UserIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -42,6 +48,9 @@ interface Driver {
   employmentStatus: string;
   availabilityStatus: string;
   currentSafetyScore?: string | null;
+  emergencyContactName?: string | null;
+  emergencyContactPhone?: string | null;
+  totalDistanceKm?: string | null;
 }
 
 export default function DriversPage() {
@@ -49,6 +58,8 @@ export default function DriversPage() {
   const [loading, setLoading] = React.useState(true);
   const [search, setSearch] = React.useState("");
   const [isAddOpen, setIsAddOpen] = React.useState(false);
+  const [editingDriverId, setEditingDriverId] = React.useState<string | null>(null);
+  const [viewingDriver, setViewingDriver] = React.useState<Driver | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
 
   const [formData, setFormData] = React.useState({
@@ -79,39 +90,66 @@ export default function DriversPage() {
     fetchDrivers();
   }, [fetchDrivers]);
 
-  const handleRegisterDriver = async (e: React.FormEvent) => {
+  const handleOpenAdd = () => {
+    setEditingDriverId(null);
+    setFormData({
+      fullName: "",
+      email: "",
+      phone: "",
+      employeeCode: "",
+      employmentStatus: "ACTIVE",
+      availabilityStatus: "AVAILABLE",
+      emergencyContactName: "",
+      emergencyContactPhone: "",
+    });
+    setIsAddOpen(true);
+  };
+
+  const handleOpenEdit = (driver: Driver) => {
+    setEditingDriverId(driver.id);
+    setFormData({
+      fullName: driver.fullName || "",
+      email: driver.email || "",
+      phone: driver.phone || "",
+      employeeCode: driver.employeeCode || "",
+      employmentStatus: driver.employmentStatus || "ACTIVE",
+      availabilityStatus: driver.availabilityStatus || "AVAILABLE",
+      emergencyContactName: driver.emergencyContactName || "",
+      emergencyContactPhone: driver.emergencyContactPhone || "",
+    });
+    setIsAddOpen(true);
+  };
+
+  const handleSaveDriver = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.fullName) {
+    if (!formData.fullName.trim()) {
       toast.error("Full name is required");
       return;
     }
 
     try {
       setSubmitting(true);
-      const res = await fetch("/api/drivers", {
-        method: "POST",
+      const isEditing = Boolean(editingDriverId);
+      const url = "/api/drivers";
+      const method = isEditing ? "PUT" : "POST";
+      const payload = isEditing
+        ? { id: editingDriverId, ...formData }
+        : formData;
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to register driver");
+      if (!res.ok) throw new Error(data.error || `Failed to ${isEditing ? "update" : "register"} driver`);
 
-      toast.success(`Driver ${formData.fullName} registered successfully!`);
+      toast.success(`Driver ${formData.fullName} ${isEditing ? "updated" : "registered"} successfully!`);
       setIsAddOpen(false);
-      setFormData({
-        fullName: "",
-        email: "",
-        phone: "",
-        employeeCode: "",
-        employmentStatus: "ACTIVE",
-        availabilityStatus: "AVAILABLE",
-        emergencyContactName: "",
-        emergencyContactPhone: "",
-      });
       fetchDrivers();
     } catch (err: any) {
-      toast.error(err.message || "Failed to register driver");
+      toast.error(err.message || "Failed to save driver");
     } finally {
       setSubmitting(false);
     }
@@ -150,17 +188,28 @@ export default function DriversPage() {
           <p className="text-sm text-muted-foreground">Manage drivers, license verification, safety scores, and route availability.</p>
         </div>
 
-        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogTrigger render={<Button size="sm" className="gap-1.5 font-semibold" />}>
-            <UserPlusIcon className="size-4" />
-            <span>Register Driver</span>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Register New Driver</DialogTitle>
-              <DialogDescription>Add a driver to your organization for dispatch & safety tracking.</DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleRegisterDriver} className="space-y-3 py-2">
+        <Button size="sm" className="gap-1.5 font-semibold" onClick={handleOpenAdd}>
+          <UserPlusIcon className="size-4" />
+          <span>Register Driver</span>
+        </Button>
+      </div>
+
+      {/* Add / Edit Driver Modal with LIVE PREVIEW */}
+      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {editingDriverId ? <PencilIcon className="size-4 text-primary" /> : <UserPlusIcon className="size-4 text-primary" />}
+              <span>{editingDriverId ? "Edit Driver Details" : "Register New Driver"}</span>
+            </DialogTitle>
+            <DialogDescription>
+              {editingDriverId ? "Modify driver details and preview changes live below." : "Add a driver to your organization with live editing preview."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 py-2">
+            {/* Form Column */}
+            <form onSubmit={handleSaveDriver} id="driver-form" className="lg:col-span-7 space-y-3">
               <div>
                 <label className="text-xs font-semibold text-muted-foreground">Full Name *</label>
                 <Input
@@ -206,7 +255,36 @@ export default function DriversPage() {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground">Emergency Contact Name</label>
+                  <label className="text-xs font-semibold text-muted-foreground">Employment Status</label>
+                  <select
+                    value={formData.employmentStatus}
+                    onChange={(e) => setFormData({ ...formData, employmentStatus: e.target.value })}
+                    className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-xs"
+                  >
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="INACTIVE">INACTIVE</option>
+                    <option value="SUSPENDED">SUSPENDED</option>
+                    <option value="ON_LEAVE">ON LEAVE</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground">Availability Status</label>
+                  <select
+                    value={formData.availabilityStatus}
+                    onChange={(e) => setFormData({ ...formData, availabilityStatus: e.target.value })}
+                    className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-xs"
+                  >
+                    <option value="AVAILABLE">AVAILABLE</option>
+                    <option value="ASSIGNED">ASSIGNED</option>
+                    <option value="DRIVING">DRIVING</option>
+                    <option value="OFF_DUTY">OFF DUTY</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground">Emergency Contact</label>
                   <Input
                     placeholder="Jane Scott"
                     value={formData.emergencyContactName}
@@ -215,7 +293,7 @@ export default function DriversPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground">Emergency Contact Phone</label>
+                  <label className="text-xs font-semibold text-muted-foreground">Emergency Phone</label>
                   <Input
                     placeholder="+1 (555) 019-9988"
                     value={formData.emergencyContactPhone}
@@ -224,20 +302,135 @@ export default function DriversPage() {
                   />
                 </div>
               </div>
-
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={submitting}>
-                  {submitting ? <Loader2Icon className="size-4 animate-spin mr-1" /> : null}
-                  Save Driver
-                </Button>
-              </DialogFooter>
             </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+
+            {/* LIVE PREVIEW COLUMN */}
+            <div className="lg:col-span-5 flex flex-col justify-start">
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-primary flex items-center gap-1 uppercase tracking-wider">
+                    <SparklesIcon className="size-3.5 animate-pulse text-amber-500" /> Live Card Preview
+                  </span>
+                  <Badge variant="outline" className="text-[10px] bg-background">
+                    {editingDriverId ? "Editing Mode" : "New Driver"}
+                  </Badge>
+                </div>
+
+                <div className="rounded-md border bg-card p-3 shadow-xs space-y-2.5">
+                  <div className="flex items-center justify-between border-b pb-2">
+                    <div>
+                      <h4 className="font-bold text-sm text-foreground">
+                        {formData.fullName || "Driver Name"}
+                      </h4>
+                      <p className="text-[10px] font-mono text-muted-foreground">
+                        {formData.employeeCode ? formData.employeeCode : "EMP-XXXX"}
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-bold">
+                      100/100
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-1.5 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <MailIcon className="size-3 text-primary shrink-0" />
+                      <span className="truncate">{formData.email || "No email provided"}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <PhoneIcon className="size-3 text-primary shrink-0" />
+                      <span>{formData.phone || "No phone provided"}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 pt-1 border-t">
+                    <Badge variant="outline" className="text-[10px]">
+                      {formData.employmentStatus}
+                    </Badge>
+                    <Badge className="text-[10px] bg-primary/15 text-primary border-primary/30">
+                      {formData.availabilityStatus}
+                    </Badge>
+                  </div>
+
+                  {formData.emergencyContactName && (
+                    <div className="text-[10px] bg-muted/50 rounded p-1.5 text-muted-foreground mt-1">
+                      <span className="font-semibold text-foreground">ICE Contact:</span> {formData.emergencyContactName} ({formData.emergencyContactPhone || "N/A"})
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="mt-4">
+            <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" form="driver-form" disabled={submitting}>
+              {submitting ? <Loader2Icon className="size-4 animate-spin mr-1" /> : null}
+              {editingDriverId ? "Save Changes" : "Register Driver"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Driver View Modal */}
+      <Dialog open={Boolean(viewingDriver)} onOpenChange={(open) => !open && setViewingDriver(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserIcon className="size-4 text-primary" />
+              <span>Driver Profile Preview</span>
+            </DialogTitle>
+            <DialogDescription>Full record details for {viewingDriver?.fullName}</DialogDescription>
+          </DialogHeader>
+
+          {viewingDriver && (
+            <div className="space-y-4 py-2">
+              <div className="flex items-center justify-between border-b pb-3">
+                <div>
+                  <h3 className="font-bold text-base">{viewingDriver.fullName}</h3>
+                  <p className="text-xs font-mono text-muted-foreground">{viewingDriver.employeeCode || "No Code"}</p>
+                </div>
+                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-bold">
+                  Safety: {viewingDriver.currentSafetyScore || "100"}/100
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <span className="text-muted-foreground block font-medium">Email:</span>
+                  <span className="font-semibold">{viewingDriver.email || "N/A"}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block font-medium">Phone:</span>
+                  <span className="font-semibold">{viewingDriver.phone || "N/A"}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block font-medium">Employment:</span>
+                  <Badge variant="outline" className="mt-0.5">{viewingDriver.employmentStatus}</Badge>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block font-medium">Availability:</span>
+                  <Badge className="mt-0.5 bg-primary/15 text-primary">{viewingDriver.availabilityStatus}</Badge>
+                </div>
+              </div>
+
+              {viewingDriver.emergencyContactName && (
+                <div className="rounded-md border bg-muted/30 p-2 text-xs">
+                  <span className="font-semibold block text-muted-foreground">Emergency Contact:</span>
+                  <p className="font-medium text-foreground">{viewingDriver.emergencyContactName} - {viewingDriver.emergencyContactPhone || "No Phone"}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewingDriver(null)}>
+              Close Preview
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* KPI summary cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -353,14 +546,35 @@ export default function DriversPage() {
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      size="icon-xs"
-                      variant="ghost"
-                      className="text-destructive hover:bg-destructive/10"
-                      onClick={() => handleDeleteDriver(driver.id, driver.fullName)}
-                    >
-                      <Trash2Icon className="size-3.5" />
-                    </Button>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        size="icon-xs"
+                        variant="ghost"
+                        title="Preview Details"
+                        className="text-muted-foreground hover:text-foreground"
+                        onClick={() => setViewingDriver(driver)}
+                      >
+                        <EyeIcon className="size-3.5" />
+                      </Button>
+                      <Button
+                        size="icon-xs"
+                        variant="ghost"
+                        title="Edit Driver"
+                        className="text-primary hover:bg-primary/10"
+                        onClick={() => handleOpenEdit(driver)}
+                      >
+                        <PencilIcon className="size-3.5" />
+                      </Button>
+                      <Button
+                        size="icon-xs"
+                        variant="ghost"
+                        title="Delete Driver"
+                        className="text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDeleteDriver(driver.id, driver.fullName)}
+                      >
+                        <Trash2Icon className="size-3.5" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

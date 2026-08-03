@@ -92,6 +92,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    if (estimatedDistanceKm !== undefined && estimatedDistanceKm !== null && Number(estimatedDistanceKm) < 0) {
+      return NextResponse.json({ error: "Distance cannot be negative" }, { status: 400 });
+    }
+
     const tripNumber = `TRIP-${Math.floor(10000 + Math.random() * 90000)}`;
     const [newTrip] = await db
       .insert(trips)
@@ -130,6 +134,54 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ trip: newTrip }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to create trip" }, { status: 500 });
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  if (!isDatabaseAvailable()) {
+    return NextResponse.json({ error: "Database connection not configured" }, { status: 503 });
+  }
+
+  try {
+    const body = await request.json();
+    const { id, title, tripType, priority, status, originName, destinationName, estimatedDistanceKm, vehicleId, driverId } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: "Trip ID is required" }, { status: 400 });
+    }
+
+    if (estimatedDistanceKm !== undefined && estimatedDistanceKm !== null && Number(estimatedDistanceKm) < 0) {
+      return NextResponse.json({ error: "Distance cannot be negative" }, { status: 400 });
+    }
+
+    const [updatedTrip] = await db
+      .update(trips)
+      .set({
+        title,
+        tripType,
+        priority,
+        status,
+        originName,
+        destinationName,
+        estimatedDistanceKm: estimatedDistanceKm ? String(estimatedDistanceKm) : null,
+        updatedAt: new Date(),
+      })
+      .where(eq(trips.id, id))
+      .returning();
+
+    if (vehicleId && driverId) {
+      await db.delete(tripAssignments).where(eq(tripAssignments.tripId, id));
+      await db.insert(tripAssignments).values({
+        tripId: id,
+        vehicleId,
+        driverId,
+        status: "ACTIVE",
+      });
+    }
+
+    return NextResponse.json({ trip: updatedTrip });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || "Failed to update trip" }, { status: 500 });
   }
 }
 

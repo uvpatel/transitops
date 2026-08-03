@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AppProviders } from "@/providers/app-providers";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: "TransitOps - Fleet Operations Platform",
@@ -18,8 +19,17 @@ export default function RootLayout({
       className="h-full antialiased"
       suppressHydrationWarning
     >
+
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
-        <AppProviders>{children}</AppProviders>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+<AppProviders>{children}</AppProviders>
+          </ThemeProvider>
+        
       </body>
     </html>
   );
