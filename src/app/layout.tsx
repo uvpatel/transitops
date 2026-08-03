@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 export const metadata: Metadata = {
   title: "TransitOps - Fleet Operations Platform",
   description: "Enterprise vehicle telemetry, driver safety scoring, and trip dispatching platform.",
+
 };
 
 export default function RootLayout({
