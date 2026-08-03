@@ -1,17 +1,12 @@
-import { auth } from "@/lib/auth"
-import { authClient } from "@/lib/auth-client"
-import { headers } from "next/headers"
+import { redirect } from "next/navigation";
+import { getCurrentSession } from "@/lib/current-user";
 
-export default async function ServerComponent() {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if(!session) {
-        return <div>Not authenticated</div>
-    }
-    return (
-        <div>
-            
-        </div>
-    )
+export default async function HomePage() {
+  const session = await getCurrentSession();
+
+  if (session) {
+    redirect("/dashboard");
+  } else {
+    redirect("/login");
+  }
 }
